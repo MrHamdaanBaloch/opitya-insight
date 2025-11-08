@@ -4,9 +4,9 @@ from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel # Import BaseModel
 
-from ...database import models, database
-from ..schemas import log as log_schema
-from ...core.security import get_current_user
+from database import models, database
+from api.schemas import log as log_schema
+from core.security import get_current_user
 
 router = APIRouter(
     prefix="/logs",

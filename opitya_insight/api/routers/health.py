@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from pydantic import BaseModel
 
-from ...database import models, database
-from ...core.security import get_current_user
+from database import models, database
+from core.security import get_current_user
 
 router = APIRouter(
     prefix="/health",

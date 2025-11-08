@@ -5,11 +5,11 @@ import cv2 # Import OpenCV for image processing
 import os # Import os for path manipulation
 from datetime import datetime # Import datetime
 
-from ...database import models, database
-from ..schemas import camera as camera_schema
-from ...core.security import get_current_user
-from ...core.worker_manager import _start_stream_worker_instance, _stop_stream_worker_instance, latest_camera_data # Import worker management and shared data from worker_manager
-from ...database.database import SessionLocal # Import SessionLocal for worker initialization
+from database import models, database
+from api.schemas import camera as camera_schema
+from core.security import get_current_user
+from core.worker_manager import _start_stream_worker_instance, _stop_stream_worker_instance, latest_camera_data # Import worker management and shared data from worker_manager
+from database.database import SessionLocal # Import SessionLocal for worker initialization
 
 router = APIRouter(
     prefix="/cameras",

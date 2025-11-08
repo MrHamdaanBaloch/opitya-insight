@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
 
-from ...database import models, database
-from ...core import security
-from ..schemas import dashboard as dashboard_schema # Assuming a new schema for dashboard data
-from ...core.worker_manager import latest_camera_data # Import latest_camera_data from worker_manager
+from database import models, database
+from core import security
+from api.schemas import dashboard as dashboard_schema # Assuming a new schema for dashboard data
+from core.worker_manager import latest_camera_data # Import latest_camera_data from worker_manager
 
 router = APIRouter(
     prefix="/dashboard",

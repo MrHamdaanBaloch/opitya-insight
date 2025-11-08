@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
-from ...database import models, database
-from ...core.security import get_current_user
+from database import models, database
+from core.security import get_current_user
 
 router = APIRouter(
     prefix="/alerts",
