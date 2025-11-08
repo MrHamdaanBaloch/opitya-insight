@@ -1,0 +1,18 @@
+uvicorn==0.34.2
+fastapi==0.115.12
+sqlalchemy==2.0.41
+pydantic==2.7.1
+python-jose==3.5.0
+passlib==1.7.4
+python-multipart==0.0.20
+websockets==15.0.1
+opencv-python==4.11.0.86
+ffmpy==0.5.0
+ultralytics==8.0.222
+boto3==1.38.23
+psycopg2-binary==2.9.9
+python-dotenv==1.1.0
+pillow==10.0.1
+tensorflow==2.14.0 # Or pytorch, depending on actual ANPR model
+fast_alpr
+onnxruntime

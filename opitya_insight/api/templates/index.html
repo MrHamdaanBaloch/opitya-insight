@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optiya INSIGHT - Live ANPR Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for a more premium feel */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+    </style>
+</head>
+<body class="h-full text-gray-200">
+    <div class="flex flex-col h-screen">
+        <!-- Header -->
+        <header class="bg-gray-800 shadow-md z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <h1 class="text-2xl font-bold text-white">Optiya <span class="text-indigo-400">INSIGHT</span></h1>
+                    <button id="logout-btn" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded-md transition-colors">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow flex overflow-hidden">
+            <!-- Stream Panel -->
+            <div class="w-3/4 flex flex-col p-4">
+                <div class="flex-grow bg-black rounded-lg shadow-xl flex items-center justify-center relative overflow-hidden">
+                    <img id="video" class="w-full h-full object-contain" alt="Live Stream">
+                    <div id="status-overlay" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                        <span id="status-text" class="text-2xl font-semibold text-gray-400">Ready to connect</span>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 p-4 bg-gray-800 rounded-b-lg">
+                    <div class="flex items-center space-x-4">
+                        <input type="text" id="rtsp_url" class="flex-grow bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter RTSP Stream URL...">
+                        <button id="test-stream-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md transition-colors">Test Stream</button>
+                        <button id="connect-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-md transition-colors w-32">Connect</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Log Panel -->
+            <aside class="w-1/4 bg-gray-800/50 border-l border-gray-700 flex flex-col">
+                <h2 class="text-lg font-bold p-4 border-b border-gray-700">Detected Plates Log</h2>
+                <div id="log-container" class="flex-grow overflow-y-auto p-4 space-y-3">
+                    <!-- Log entries will be injected here -->
+                    <p class="text-gray-500">No detections yet...</p>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const rtspUrlInput = document.getElementById('rtsp_url');
+        const connectBtn = document.getElementById('connect-btn');
+        const testStreamBtn = document.getElementById('test-stream-btn');
+        const logContainer = document.getElementById('log-container');
+        const statusOverlay = document.getElementById('status-overlay');
+        const statusText = document.getElementById('status-text');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        let socket;
+        const TEST_RTSP_URL = "rtsp://rtspstream:-S-8ZCvqgpHEbdhk7NMUW@zephyr.rtsp.stream/traffic";
+
+        function setStatus(text, isLoading = false) {
+            statusText.textContent = text;
+            if (isLoading) {
+                statusOverlay.classList.remove('hidden');
+            } else {
+                // Hide overlay only if not actively streaming
+                if (!socket || socket.readyState !== WebSocket.OPEN) {
+                    statusOverlay.classList.remove('hidden');
+                } else {
+                    statusOverlay.classList.add('hidden');
+                }
+            }
+        }
+
+        function connect() {
+            const rtspUrl = rtspUrlInput.value;
+            if (!rtspUrl) {
+                alert("Please enter an RTSP URL.");
+                return;
+            }
+
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+                console.log("Socket is already open or connecting. Closing first.");
+                socket.close();
+            }
+
+            const wsUrl = `ws://${window.location.host}/ws/anpr`;
+            socket = new WebSocket(wsUrl);
+
+            connectBtn.disabled = true;
+            connectBtn.textContent = "Connecting...";
+            setStatus("Connecting...", true);
+
+            socket.onopen = () => {
+                console.log("WebSocket connected.");
+                // Send both the token and the RTSP URL
+                socket.send(JSON.stringify({ token: token, rtsp_url: rtspUrl }));
+                connectBtn.textContent = "Disconnect";
+                connectBtn.classList.replace('bg-indigo-600', 'bg-red-600');
+                connectBtn.classList.replace('hover:bg-indigo-500', 'hover:bg-red-500');
+                connectBtn.disabled = false;
+                setStatus("Streaming...", true);
+                statusOverlay.classList.add('hidden'); // Hide overlay on successful stream start
+            };
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.image) {
+                    video.src = `data:image/jpeg;base64,${data.image}`;
+                }
+                if (data.plates && data.plates.length > 0) {
+                    updateLogs(data.plates);
+                }
+            };
+
+            socket.onclose = () => {
+                console.log("WebSocket disconnected.");
+                resetUI();
+            };
+
+            socket.onerror = (error) => {
+                console.error("WebSocket error:", error);
+                setStatus("Connection Error", false);
+                resetUI();
+            };
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.close();
+            }
+        }
+
+        function resetUI() {
+            connectBtn.textContent = "Connect";
+            connectBtn.classList.replace('bg-red-600', 'bg-indigo-600');
+            connectBtn.classList.replace('hover:bg-red-500', 'hover:bg-indigo-500');
+            connectBtn.disabled = false;
+            video.src = "";
+            setStatus("Disconnected", false);
+        }
+
+        function formatTimestamp(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleTimeString();
+        }
+
+        function addLogEntry(plate, timestamp, isLive = false) {
+            const logEntry = document.createElement('div');
+            logEntry.className = "bg-gray-700/50 p-2 rounded-md text-sm";
+            if (isLive) {
+                logEntry.classList.add('animate-fade-in');
+            }
+            logEntry.innerHTML = `
+                <span class="font-mono bg-gray-900 px-2 py-1 rounded">${plate}</span>
+                <span class="text-gray-400 ml-2">${timestamp}</span>
+            `;
+            logContainer.prepend(logEntry);
+        }
+
+        async function fetchInitialLogs() {
+            try {
+                const response = await fetch('/logs?limit=50');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const logs = await response.json();
+                
+                if (logs.length > 0) {
+                    logContainer.innerHTML = ''; // Clear "No detections" message
+                    logs.forEach(log => {
+                        addLogEntry(log.plate_text, formatTimestamp(log.timestamp));
+                    });
+                }
+            } catch (error) {
+                console.error("Could not fetch initial logs:", error);
+                logContainer.innerHTML = '<p class="text-red-400">Could not load historical logs.</p>';
+            }
+        }
+
+        function updateLogs(plates) {
+            // This function is now only for LIVE plates from the WebSocket
+            if (logContainer.querySelector('p')) {
+                logContainer.innerHTML = '';
+            }
+            
+            const timestamp = new Date().toLocaleTimeString();
+
+            plates.forEach(plate => {
+                addLogEntry(plate, timestamp, true);
+            });
+
+            // Limit the number of log entries
+            while (logContainer.children.length > 100) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        // Event Listeners
+        connectBtn.addEventListener('click', () => {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                disconnect();
+            } else {
+                connect();
+            }
+        });
+
+        testStreamBtn.addEventListener('click', () => {
+            rtspUrlInput.value = TEST_RTSP_URL;
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('access_token');
+            window.location.href = '/login';
+        });
+
+        // --- Security & Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/login';
+                return; // Stop further execution
+            }
+            fetchInitialLogs();
+        });
+
+        // Add fade-in animation for logs
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fade-in {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fade-in 0.5s ease-out forwards;
+            }
+        `;
+        document.head.appendChild(style);
+
+    </script>
+</body>
+</html>

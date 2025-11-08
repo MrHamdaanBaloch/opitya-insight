@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:13
+    container_name: optiya_db
+    environment:
+      - POSTGRES_USER=opitya
+      - POSTGRES_PASSWORD=opitya_password
+      - POSTGRES_DB=opitya_insight
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  api:
+    build: .
+    container_name: optiya_api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://opitya:opitya_password@db/opitya_insight
+      - SECRET_KEY=a_secure_production_secret_key_should_be_set_here
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

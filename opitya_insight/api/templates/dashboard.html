@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Optiya INSIGHT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full">
+    <nav class="bg-gray-800">
+        <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+            <div class="relative flex h-16 items-center justify-between">
+                <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+                    <div class="flex flex-shrink-0 items-center">
+                        <h1 class="text-2xl font-bold text-white">Optiya <span class="text-indigo-400">INSIGHT</span></h1>
+                    </div>
+                </div>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                    <button type="button" id="logout-btn" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <div class="bg-gray-800 rounded-lg shadow-lg p-4">
+                    <div class="aspect-w-16 aspect-h-9 relative">
+                        <img id="video-stream" class="w-full h-full object-cover rounded-lg" src="" alt="">
+                        <div id="video-placeholder" class="absolute inset-0 flex items-center justify-center">
+                            <h2 class="text-2xl font-bold text-gray-500 opacity-50">Video stream will appear here.</h2>
+                        </div>
+                        <div id="loading-overlay" class="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
+                            <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-400"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="bg-gray-800 rounded-lg shadow-lg p-4">
+                        <div class="flex items-center">
+                            <input type="text" id="rtsp-url" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter RTSP URL (e.g., rtsp://...)" value="rtsp://rtspstream:-S-8ZCvqgpHEbdhk7NMUW@zephyr.rtsp.stream/traffic">
+                            <button id="connect-btn" class="ml-4 py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-md transition-colors">Connect</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-800 rounded-lg shadow-lg">
+                <div class="p-4 border-b border-gray-700">
+                    <h2 class="text-xl font-bold text-white">Detected Plates</h2>
+                </div>
+                <div id="log-container" class="p-4 h-96 overflow-y-auto">
+                    <div id="plate-log"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-gray-800 rounded-lg shadow-lg">
+                <div class="p-4 border-b border-gray-700">
+                    <h2 class="text-xl font-bold text-white">Watchlist Management</h2>
+                </div>
+                <div class="p-4">
+                    <form id="add-watchlist-form" class="flex items-center">
+                        <input type="text" id="plate-text" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="License Plate" required>
+                        <button type="submit" class="ml-4 py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-md transition-colors">Add</button>
+                    </form>
+                    <ul id="watchlist" class="mt-4 space-y-2">
+                        <!-- Watchlist items will be inserted here -->
+                    </ul>
+                </div>
+            </div>
+            <div class="bg-gray-800 rounded-lg shadow-lg">
+                <div class="p-4 border-b border-gray-700">
+                    <h2 class="text-xl font-bold text-white">Camera Management</h2>
+                </div>
+                <div class="p-4">
+                    <form id="add-camera-form" class="flex items-center">
+                        <input type="text" id="camera-name" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Camera Name" required>
+                        <input type="text" id="camera-rtsp" class="ml-4 w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="RTSP URL" required>
+                        <button type="submit" class="ml-4 py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-md transition-colors">Add</button>
+                    </form>
+                    <table class="mt-4 w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-400 uppercase bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Name</th>
+                                <th scope="col" class="px-6 py-3">RTSP URL</th>
+                                <th scope="col" class="px-6 py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="camera-list">
+                            <!-- Camera rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="alert-popup" class="fixed top-5 right-5 bg-red-600 text-white py-2 px-4 rounded-lg shadow-lg hidden">
+        <p><span class="font-bold">Watchlist Match:</span> <span id="alert-plate"></span></p>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        const videoStream = document.getElementById('video-stream');
+        const videoPlaceholder = document.getElementById('video-placeholder');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const plateLog = document.getElementById('plate-log');
+        const connectBtn = document.getElementById('connect-btn');
+        const rtspUrlInput = document.getElementById('rtsp-url');
+        const logoutBtn = document.getElementById('logout-btn');
+        let socket;
+
+        function connect() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.close();
+            }
+
+            const rtspUrl = rtspUrlInput.value;
+            if (!rtspUrl) {
+                alert("Please enter an RTSP URL.");
+                return;
+            }
+
+            loadingOverlay.classList.remove('hidden');
+            videoPlaceholder.classList.add('hidden');
+
+            socket = new WebSocket(`ws://${window.location.host}/ws/anpr`);
+
+            socket.onopen = () => {
+                console.log("WebSocket connection established.");
+                connectBtn.textContent = 'Disconnect';
+                connectBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+                connectBtn.classList.add('bg-red-600', 'hover:bg-red-500');
+                socket.send(JSON.stringify({ token: token, rtsp_url: rtspUrl }));
+            };
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.image) {
+                    videoStream.src = `data:image/jpeg;base64,${data.image}`;
+                    loadingOverlay.classList.add('hidden');
+                }
+                if (data.plates && data.plates.length > 0) {
+                    data.plates.forEach(plate => {
+                        const logEntry = document.createElement('div');
+                        logEntry.className = 'p-2 border-b border-gray-700 text-white';
+                        logEntry.textContent = `${new Date().toLocaleTimeString()}: ${plate}`;
+                        
+                        const watchlistItems = Array.from(document.querySelectorAll('#watchlist li span')).map(span => span.textContent);
+                        if (watchlistItems.includes(plate)) {
+                            logEntry.classList.add('bg-red-600');
+                            showAlert(plate);
+                        }
+
+                        plateLog.prepend(logEntry);
+                    });
+                }
+                 if (data.error) {
+                    alert(`Error: ${data.error}`);
+                    socket.close();
+                }
+            };
+
+            socket.onclose = (event) => {
+                console.log("WebSocket connection closed.", event.reason);
+                connectBtn.textContent = 'Connect';
+                connectBtn.classList.remove('bg-red-600', 'hover:bg-red-500');
+                connectBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
+                videoStream.src = ''; // Clear image on disconnect
+                videoPlaceholder.classList.remove('hidden');
+                loadingOverlay.classList.add('hidden');
+            };
+
+            socket.onerror = (error) => {
+                console.error("WebSocket error:", error);
+                alert("Failed to establish WebSocket connection.");
+                loadingOverlay.classList.add('hidden');
+                videoPlaceholder.classList.remove('hidden');
+            };
+        }
+
+        function disconnect() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.close();
+            }
+        }
+
+        function showAlert(plate) {
+            const alertPopup = document.getElementById('alert-popup');
+            const alertPlate = document.getElementById('alert-plate');
+            alertPlate.textContent = plate;
+            alertPopup.classList.remove('hidden');
+            setTimeout(() => {
+                alertPopup.classList.add('hidden');
+            }, 5000);
+        }
+
+        connectBtn.addEventListener('click', () => {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                disconnect();
+            } else {
+                connect();
+            }
+        });
+
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('access_token');
+            window.location.href = '/login';
+        });
+
+        const watchlist = document.getElementById('watchlist');
+        const addWatchlistForm = document.getElementById('add-watchlist-form');
+
+        async function fetchWatchlist() {
+            const response = await fetch('/watchlist', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const items = await response.json();
+                watchlist.innerHTML = '';
+                items.forEach(item => {
+                    const li = `
+                        <li class="flex items-center justify-between bg-gray-700 p-2 rounded-md">
+                            <span class="text-white">${item.plate_text}</span>
+                            <button class="py-1 px-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-md transition-colors" onclick="deleteWatchlistItem(${item.id})">Delete</button>
+                        </li>
+                    `;
+                    watchlist.innerHTML += li;
+                });
+            } else if (response.status === 401) {
+                window.location.href = '/login';
+            }
+        }
+
+        async function addWatchlistItem(e) {
+            e.preventDefault();
+            const plate_text = document.getElementById('plate-text').value;
+            const response = await fetch('/watchlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ plate_text })
+            });
+            if (response.ok) {
+                fetchWatchlist();
+                addWatchlistForm.reset();
+            } else {
+                const error = await response.json();
+                alert(`Error: ${error.detail}`);
+            }
+        }
+
+        async function deleteWatchlistItem(id) {
+            if (confirm('Are you sure you want to remove this plate from your watchlist?')) {
+                const response = await fetch(`/watchlist/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    fetchWatchlist();
+                } else {
+                    alert('Failed to delete watchlist item.');
+                }
+            }
+        }
+
+        addWatchlistForm.addEventListener('submit', addWatchlistItem);
+        fetchWatchlist();
+
+        const cameraList = document.getElementById('camera-list');
+        const addCameraForm = document.getElementById('add-camera-form');
+
+        async function fetchCameras() {
+            const response = await fetch('/cameras', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const cameras = await response.json();
+                cameraList.innerHTML = '';
+                cameras.forEach(camera => {
+                    const row = `
+                        <tr class="bg-gray-800 border-b border-gray-700">
+                            <td class="px-6 py-4 font-medium text-white">${camera.name}</td>
+                            <td class="px-6 py-4">${camera.rtsp_url}</td>
+                            <td class="px-6 py-4">
+                                <button class="py-1 px-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-md transition-colors" onclick="deleteCamera(${camera.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                    cameraList.innerHTML += row;
+                });
+            } else if (response.status === 401) {
+                window.location.href = '/login';
+            }
+        }
+
+        async function addCamera(e) {
+            e.preventDefault();
+            const name = document.getElementById('camera-name').value;
+            const rtsp_url = document.getElementById('camera-rtsp').value;
+            const response = await fetch('/cameras', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name, rtsp_url })
+            });
+            if (response.ok) {
+                fetchCameras();
+                addCameraForm.reset();
+            } else {
+                const error = await response.json();
+                alert(`Error: ${error.detail}`);
+            }
+        }
+
+        async function deleteCamera(id) {
+            if (confirm('Are you sure you want to delete this camera?')) {
+                const response = await fetch(`/cameras/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    fetchCameras();
+                } else {
+                    alert('Failed to delete camera.');
+                }
+            }
+        }
+        
+        addCameraForm.addEventListener('submit', addCamera);
+        fetchCameras();
+    </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Global ignores for the project
+    *.mp4
+    *.avi
+    *.pt
+    *.h5
+    *.onnx
+    runs/
+    opitya_insight.db
+opitya_insight_venv/
