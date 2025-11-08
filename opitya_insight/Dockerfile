@@ -29,13 +29,15 @@ FROM python:3.10-slim-bullseye
 
 WORKDIR /app
 
+# Install runtime system dependencies for OpenCV (libGL.so.1)
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
 # Add Python's site-packages bin directory to PATH for executables like uvicorn
 ENV PATH="/usr/local/bin:$PATH"
-
-# Copy only necessary system libraries from builder stage (if any specific ones are needed at runtime)
-# For now, we assume python:3.10-slim-bullseye has enough for runtime,
-# but if you encounter runtime errors for missing .so files, you might need to copy them.
-# Example: COPY --from=builder /usr/lib/x86_64-linux-gnu/libXext.so.6 /usr/lib/x86_64-linux-gnu/
 
 # Copy installed Python packages from the builder stage
 COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
