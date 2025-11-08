@@ -1,5 +1,7 @@
 # opitya_insight/Dockerfile
-FROM python:3.10-slim-bullseye
+
+# --- Builder Stage ---
+FROM python:3.10-bullseye AS builder
 
 WORKDIR /app
 
@@ -13,16 +15,29 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     libxrender1 \
     ffmpeg \
-    # Additional dependencies for deep learning libraries (example placeholders):
     libgl1-mesa-glx \
-    # openjdk-11-jdk # Uncomment if your deep learning framework uses Java
-    # Add any other specific dependencies for fast_alpr, onnxruntime, ultralytics
+    # Clean up apt cache to reduce image size
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
+# Copy requirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# --- Runtime Stage ---
+FROM python:3.10-slim-bullseye
+
+WORKDIR /app
+
+# Copy only necessary system libraries from builder stage (if any specific ones are needed at runtime)
+# For now, we assume python:3.10-slim-bullseye has enough for runtime,
+# but if you encounter runtime errors for missing .so files, you might need to copy them.
+# Example: COPY --from=builder /usr/lib/x86_64-linux-gnu/libXext.so.6 /usr/lib/x86_64-linux-gnu/
+
+# Copy installed Python packages from the builder stage
+COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+
+# Copy the application code
 COPY . .
 
 # Command to run your FastAPI application with Uvicorn
