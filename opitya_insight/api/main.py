@@ -18,15 +18,15 @@ import inspect # Import inspect to check function signature
 from datetime import datetime # Import datetime for StreamWorker
 
 # --- Database Imports ---
-from opitya_insight.database import models
-from opitya_insight.database.database import SessionLocal, create_db_and_tables, get_db
-from opitya_insight.database.models import PlateLog, Camera, Watchlist, User
-from opitya_insight.api.routers import logs, cameras, auth, watchlist, admin, alerts, health, dashboard
-from opitya_insight.core import security # Re-import security
-from opitya_insight.core.worker_manager import active_stream_workers, latest_camera_data, _start_stream_worker_instance, _stop_all_stream_workers_instances, initialize_persistent_workers # Import worker management from new file
+from database import models
+from database.database import SessionLocal, create_db_and_tables, get_db
+from database.models import PlateLog, Camera, Watchlist, User
+from api.routers import logs, cameras, auth, watchlist, admin, alerts, health, dashboard
+from core import security # Re-import security
+from core.worker_manager import active_stream_workers, latest_camera_data, _start_stream_worker_instance, _stop_all_stream_worker_instances, initialize_persistent_workers # Import worker management from new file
 
 # --- StreamWorker Imports and Definition (Modified) ---
-from opitya_insight.processing.stream_worker import StreamWorker # Only import the StreamWorker class
+from processing.stream_worker import StreamWorker # Only import the StreamWorker class
 
 # --- Configuration & Initialization ---
 logging.basicConfig(level=logging.INFO) # Changed to INFO for less verbose output
