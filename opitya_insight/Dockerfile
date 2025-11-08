@@ -29,6 +29,9 @@ FROM python:3.10-slim-bullseye
 
 WORKDIR /app
 
+# Add application root to PYTHONPATH
+ENV PYTHONPATH="/app:$PYTHONPATH"
+
 # Install runtime system dependencies for OpenCV (libGL.so.1)
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
