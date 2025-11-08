@@ -13,5 +13,6 @@ boto3==1.38.23
 psycopg2-binary==2.9.9
 python-dotenv==1.1.0
 pillow==10.0.1
-fast_alpr
+torch==2.9.0+cpu --index-url https://download.pytorch.org/whl/cpu
+fast_plate_ocr
 onnxruntime
