@@ -29,6 +29,9 @@ FROM python:3.10-slim-bullseye
 
 WORKDIR /app
 
+# Add Python's site-packages bin directory to PATH for executables like uvicorn
+ENV PATH="/usr/local/bin:$PATH"
+
 # Copy only necessary system libraries from builder stage (if any specific ones are needed at runtime)
 # For now, we assume python:3.10-slim-bullseye has enough for runtime,
 # but if you encounter runtime errors for missing .so files, you might need to copy them.
