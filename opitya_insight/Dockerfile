@@ -1,5 +1,5 @@
 # opitya_insight/Dockerfile
-FROM python:3.10-slim-buster
+FROM python:3.10-slim-bullseye
 
 WORKDIR /app
 
