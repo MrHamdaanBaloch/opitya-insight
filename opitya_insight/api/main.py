@@ -23,7 +23,7 @@ from database.database import SessionLocal, create_db_and_tables, get_db
 from database.models import PlateLog, Camera, Watchlist, User
 from api.routers import logs, cameras, auth, watchlist, admin, alerts, health, dashboard
 from core import security # Re-import security
-from core.worker_manager import active_stream_workers, latest_camera_data, _start_stream_worker_instance, _stop_all_stream_worker_instances, initialize_persistent_workers # Import worker management from new file
+from core.worker_manager import active_stream_workers, latest_camera_data, _start_stream_worker_instance, _stop_all_stream_workers_instances, initialize_persistent_workers # Import worker management from new file
 
 # --- StreamWorker Imports and Definition (Modified) ---
 from processing.stream_worker import StreamWorker # Only import the StreamWorker class
