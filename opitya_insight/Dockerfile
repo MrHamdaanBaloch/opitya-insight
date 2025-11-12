@@ -45,10 +45,13 @@ ENV PATH="/usr/local/bin:$PATH"
 # Copy installed Python packages from the builder stage
 COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 
-# Copy the application code
-COPY . .
+# Copy only the opitya_insight application code into /app/opitya_insight
+COPY opitya_insight /app/opitya_insight
+
+# Set the working directory to the opitya_insight application root
+WORKDIR /app/opitya_insight
 
 # Command to run your FastAPI application with Uvicorn
-# Assuming your main FastAPI app is in opitya_insight/api/main.py and named 'app'
+# Assuming your main FastAPI app is in api/main.py and named 'app'
 # For free tier, start with 1 worker to conserve CPU/RAM.
-CMD ["python", "-m", "uvicorn", "opitya_insight.api.main:app", "--host", "0.0.0.0", "--port", "10000", "--workers", "1"]
+CMD ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "10000", "--workers", "1"]
