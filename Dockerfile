@@ -1,23 +1,56 @@
 # Use an official Python runtime as a parent image
-FROM python:3.11-slim
+# --- Builder Stage ---
+FROM python:3.10-bullseye AS builder
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements file into the container at /app
-COPY ./opitya_insight/requirements.txt /app/requirements.txt
+# Install system dependencies for OpenCV, ffmpeg, etc.
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    ffmpeg \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Install system dependencies required by OpenCV and git
-RUN apt-get update && apt-get install -y libgl1 libsm6 libxext6 git
+# Copy requirements and install Python dependencies
+COPY ./opitya_insight/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# --- Runtime Stage ---
+FROM python:3.10-slim-bullseye
 
-# Copy the rest of the application's code into the container at /app
+WORKDIR /app
+
+# Add application root to PYTHONPATH
+ENV PYTHONPATH="/app/opitya_insight:$PYTHONPATH"
+
+# Install runtime system dependencies for OpenCV (libGL.so.1)
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Add Python's site-packages bin directory to PATH for executables like uvicorn
+ENV PATH="/usr/local/bin:$PATH"
+
+# Copy installed Python packages from the builder stage
+COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+
+# Copy only the opitya_insight application code into /app/opitya_insight
 COPY ./opitya_insight /app/opitya_insight
+
+# Set the working directory to the opitya_insight application root
+WORKDIR /app/opitya_insight
 
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
 
 # Run the application
-CMD ["uvicorn", "opitya_insight.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
