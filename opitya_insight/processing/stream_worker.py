@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 logger.info("STREAM_WORKER_MODULE_LOADED: Version with 4 arguments for start_stream_worker.") # Added for debugging module loading
 
-from ..database import models, database
+from database import models, database
 
 class StreamWorker(threading.Thread):
     def __init__(self, camera_id: int, rtsp_url: str, db_session_factory, shared_data: dict):
