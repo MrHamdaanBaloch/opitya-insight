@@ -1,4 +1,3 @@
-# Use an official Python runtime as a parent image
 # --- Builder Stage ---
 FROM python:3.10-bullseye AS builder
 
@@ -15,11 +14,12 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     libgl1-mesa-glx \
     libglib2.0-0 \
+    # Clean up apt cache to reduce image size
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
 # Copy requirements and install Python dependencies
-COPY ./opitya_insight/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 # --- Runtime Stage ---
@@ -28,7 +28,7 @@ FROM python:3.10-slim-bullseye
 WORKDIR /app
 
 # Add application root to PYTHONPATH
-ENV PYTHONPATH="/app/opitya_insight:$PYTHONPATH"
+ENV PYTHONPATH="/app:$PYTHONPATH"
 
 # Install runtime system dependencies for OpenCV (libGL.so.1)
 RUN apt-get update && apt-get install -y \
@@ -43,11 +43,8 @@ ENV PATH="/usr/local/bin:$PATH"
 # Copy installed Python packages from the builder stage
 COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 
-# Copy only the opitya_insight application code into /app/opitya_insight
-COPY ./opitya_insight /app/opitya_insight
-
-# Set the working directory to the opitya_insight application root
-WORKDIR /app/opitya_insight
+# Copy the application code
+COPY . .
 
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
