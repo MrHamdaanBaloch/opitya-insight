@@ -5,9 +5,9 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
-from opitya_insight.database import models
-from opitya_insight.database.database import SessionLocal
-from opitya_insight.processing.stream_worker import StreamWorker
+from database import models
+from database.database import SessionLocal
+from processing.stream_worker import StreamWorker
 
 logger = logging.getLogger(__name__)
 

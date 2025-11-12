@@ -24,8 +24,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from ..database import models, database
-from ..api.schemas import security as security_schema
+from database import models, database
+from api.schemas import security as security_schema
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
