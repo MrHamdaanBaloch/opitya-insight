@@ -44,9 +44,7 @@ def initialize_admin_user():
             admin_user = User(
                 email="admin@optiya.com",
                 name="Admin",
-                # For now, store plain password directly as requested by user.
-                # This is highly insecure and must be replaced with proper hashing.
-                password=admin_password_plain,
+                password=security.hash_password(admin_password_plain), # Hash the password
                 role="admin"
             )
             db.add(admin_user)
