@@ -50,4 +50,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application
-CMD ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "${PORT:-8000}", "--workers", "1"]
+CMD python -m uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1
