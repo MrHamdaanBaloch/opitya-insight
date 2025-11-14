@@ -14,7 +14,10 @@ def hash_password(password: str) -> str:
     return hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    logger.debug(f"Verifying password. Plain: '{plain_password}', Hashed: '{hashed_password}'")
+    result = checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    logger.debug(f"Password verification result: {result}")
+    return result
 
 # --- JWT Token Management ---
 SECRET_KEY = os.getenv("SECRET_KEY", "a_super_secret_key_for_development")
