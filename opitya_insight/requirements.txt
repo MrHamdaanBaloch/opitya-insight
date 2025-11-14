@@ -16,3 +16,4 @@ pillow>=11.0.0
 torch==2.9.0
 fast_plate_ocr
 onnxruntime
+bcrypt==4.1.3

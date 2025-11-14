@@ -6,6 +6,7 @@ from datetime import timedelta
 from database import models, database
 from api.schemas import security as security_schema
 from core import security
+from core.security import hash_password, verify_password # Import hashing functions
 
 router = APIRouter(
     prefix="/auth",
@@ -21,9 +22,8 @@ def register_user(user: security_schema.UserCreate, db: Session = Depends(databa
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    # TEMPORARY: Storing plain password directly as requested by user. THIS IS INSECURE AND MUST BE REVERTED.
-    # The actual fix for bcrypt/passlib issue will be addressed later.
-    db_user = models.User(email=user.email, name=user.name, password=user.password, role=user.role)
+    hashed_password = hash_password(user.password)
+    db_user = models.User(email=user.email, name=user.name, password=hashed_password, role=user.role)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -35,9 +35,8 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     Authenticate user and return a JWT access token.
     """
     user = db.query(models.User).filter(models.User.email == form_data.username).first() # Frontend sends email in username field
-    # TEMPORARY: Verifying plain password directly as requested by user. THIS IS INSECURE AND MUST BE REVERTED.
-    # The actual fix for bcrypt/passlib issue will be addressed later.
-    if not user or user.password != form_data.password:
+    
+    if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -77,9 +76,8 @@ def update_user_profile(
 
     current_user.email = user_update.email
     current_user.name = user_update.name
-    # TEMPORARY: Storing plain password directly as requested by user. THIS IS INSECURE AND MUST BE REVERTED.
-    # The actual fix for bcrypt/passlib issue will be addressed later.
-    current_user.password = user_update.password # Update password directly if provided
+    if user_update.password: # Only update password if provided
+        current_user.password = hash_password(user_update.password)
     # Role update should be handled by admin, not self-service
     db.add(current_user)
     db.commit()

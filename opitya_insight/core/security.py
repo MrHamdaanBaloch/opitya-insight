@@ -2,8 +2,19 @@ import logging
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 import os
+from passlib.context import CryptContext
+from bcrypt import hashpw, gensalt, checkpw
 
 logger = logging.getLogger(__name__)
+
+# --- Password Hashing ---
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    return hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 # --- JWT Token Management ---
 SECRET_KEY = os.getenv("SECRET_KEY", "a_super_secret_key_for_development")
