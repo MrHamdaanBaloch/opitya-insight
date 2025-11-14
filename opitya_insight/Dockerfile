@@ -50,4 +50,4 @@ COPY . .
 EXPOSE 8080
 
 # Run the application
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "$PORT"]
+CMD python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1
