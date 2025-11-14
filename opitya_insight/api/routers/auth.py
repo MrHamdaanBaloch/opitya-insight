@@ -34,14 +34,19 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     """
     Authenticate user and return a JWT access token.
     """
+    # Add debug logging for received credentials
+    logger.debug(f"Login attempt received. Username: '{form_data.username}', Password: '{form_data.password}'")
+
     user = db.query(models.User).filter(models.User.email == form_data.username).first() # Frontend sends email in username field
     
     if not user or not verify_password(form_data.password, user.password):
+        logger.warning(f"Authentication failed for user: '{form_data.username}'. Incorrect email or password.")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    logger.info(f"User '{form_data.username}' authenticated successfully.")
     
     access_token_expires = timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(

@@ -30,13 +30,20 @@ const Login = () => {
     setLoading(true);
     
     try {
+      const loginBody = new URLSearchParams({
+        username: loginForm.email,
+        password: loginForm.password,
+      });
+      console.log("Frontend sending login request with:", {
+        username: loginForm.email,
+        password: loginForm.password,
+        bodyString: loginBody.toString()
+      });
+
       const response = await apiClient('/auth/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          username: loginForm.email,
-          password: loginForm.password,
-        }),
+        body: loginBody,
       });
 
       localStorage.setItem('token', response.access_token);

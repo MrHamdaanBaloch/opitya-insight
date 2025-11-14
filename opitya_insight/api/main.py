@@ -29,7 +29,7 @@ from core.worker_manager import active_stream_workers, latest_camera_data, _star
 from processing.stream_worker import StreamWorker # Only import the StreamWorker class
 
 # --- Configuration & Initialization ---
-logging.basicConfig(level=logging.INFO) # Changed to INFO for less verbose output
+logging.basicConfig(level=logging.DEBUG) # Changed to DEBUG for verbose output
 logger = logging.getLogger(__name__)
 
 def initialize_admin_user():
@@ -38,13 +38,13 @@ def initialize_admin_user():
         admin_user = db.query(User).filter(User.email == "admin@optiya.com").first()
         if not admin_user:
             logger.info("No admin user found. Creating default admin user.")
-            # TEMPORARY: Storing plain password to bypass bcrypt error. THIS IS INSECURE AND MUST BE REVERTED.
-            # The actual fix for bcrypt/passlib issue will be addressed later.
             admin_password_plain = "admin"
+            hashed_admin_password = security.hash_password(admin_password_plain)
+            logger.debug(f"Initializing admin user. Plain password: '{admin_password_plain}', Hashed password: '{hashed_admin_password}'")
             admin_user = User(
                 email="admin@optiya.com",
                 name="Admin",
-                password=security.hash_password(admin_password_plain), # Hash the password
+                password=hashed_admin_password, # Hash the password
                 role="admin"
             )
             db.add(admin_user)
@@ -53,6 +53,8 @@ def initialize_admin_user():
             logger.info("Default admin user 'admin@optiya.com' created.")
         else:
             logger.info("Admin user 'admin@optiya.com' already exists.")
+            existing_admin_user = db.query(User).filter(User.email == "admin@optiya.com").first()
+            logger.debug(f"Existing admin user password hash: '{existing_admin_user.password}'")
     except Exception as e:
         logger.error(f"Error initializing admin user: {e}")
     finally:
