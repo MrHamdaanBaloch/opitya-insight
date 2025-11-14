@@ -1,9 +1,135 @@
-# Global ignores for the project
-    *.mp4
-    *.avi
-    *.pt
-    *.h5
-    *.onnx
-    runs/
-    opitya_insight.db
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+.report/
+
+# Node.js
+# Force yarn to ignore this file in favor of .gitignore
+# when running "yarn install --ignore-engines"
+# /frontend/node_modules
+
+# Runtime data
+.next/
+.nuxt/
+.vuepress/dist/
+.serverless/
+.fuse/
+.netlify/
+.vercel/
+.svelte-kit/
+.stack-work/
+.jekyll-cache/
+.astro/
+.awcache/
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+.cache
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging.local
+.env.preview.local
+.env.development
+.env.test
+.env.production
+.env.staging
+.env.preview
+
+# IDEs and editors
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# Virtual environments
+.venv
+venv
+env
+
+# Compiled files
+*.pyc
+__pycache__
+*.o
+*.so
+*.egg
+*.egg-info
+*.pyo
+
+# Testing
+.nyc_output
+coverage
+.coverage
+.nyc_output
+.jest_cache
+
+# Build artifacts
+build
+dist
+tmp
+out
+
+# Docker
+*.dockerignore
+docker-compose.override.yml
+
+# Database
+*.sqlite
+*.db
+*.db-journal
+
+# Uploaded files
+uploads/
+
+# Media files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.webp
+
+# Deep learning models and weights
+*.pt
+*.h5
+*.onnx
+runs/
+
+# Python virtual environment
 opitya_insight_venv/
+
+# Railway specific files
+.railway/
+
+# Frontend specific ignores
+frontend/node_modules
+frontend/build
+frontend/public/Screenshot 2025-11-12 213238.png
