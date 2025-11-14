@@ -1,3 +1,4 @@
+import logging # Import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -7,6 +8,8 @@ from database import models, database
 from api.schemas import security as security_schema
 from core import security
 from core.security import hash_password, verify_password # Import hashing functions
+
+logger = logging.getLogger(__name__) # Initialize logger
 
 router = APIRouter(
     prefix="/auth",
