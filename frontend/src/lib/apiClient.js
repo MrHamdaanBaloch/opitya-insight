@@ -1,7 +1,7 @@
 import { toast } from '../hooks/use-toast';
 
 // Determine API URL based on environment
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 const apiClient = async (endpoint, { body, ...customConfig } = {}) => {
   const token = localStorage.getItem('token'); // Assuming 'token' is stored directly
