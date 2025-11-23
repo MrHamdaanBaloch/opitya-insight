@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react"; // Import useEffect
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "./components/ui/toaster";
 import LandingPage from "./pages/LandingPage";
@@ -22,6 +22,11 @@ function App() {
   const [user, setUser] = React.useState(
     JSON.parse(localStorage.getItem('optiya-user') || 'null')
   );
+
+  // Log user state changes
+  useEffect(() => {
+    console.log("AuthContext: User state changed to:", user);
+  }, [user]);
 
   const login = (userData) => {
     console.log("AuthContext: login called with userData:", userData);
