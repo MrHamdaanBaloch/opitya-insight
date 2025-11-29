@@ -43,6 +43,9 @@ ENV PATH="/usr/local/bin:$PATH"
 # Copy installed Python packages from the builder stage
 COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 
+# Copy the models weights
+COPY opitya_insight/models/weights/ /app/opitya_insight/models/weights/
+
 # Copy the application code
 COPY . .
 
