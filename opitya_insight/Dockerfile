@@ -1,7 +1,7 @@
 # --- Builder Stage ---
 FROM python:3.10-bullseye AS builder
 
-WORKDIR /app
+WORKDIR /opitya_insight
 
 # Install system dependencies for OpenCV, ffmpeg, etc.
 RUN apt-get update && apt-get install -y \
@@ -25,10 +25,10 @@ RUN pip install --no-cache-dir -r requirements.txt --extra-index-url https://dow
 # --- Runtime Stage ---
 FROM python:3.10-slim-bullseye
 
-WORKDIR /app
+WORKDIR /opitya_insight
 
 # Add application root to PYTHONPATH
-ENV PYTHONPATH="/app:$PYTHONPATH"
+ENV PYTHONPATH="/opitya_insight:$PYTHONPATH"
 
 # Install runtime system dependencies for OpenCV (libGL.so.1)
 RUN apt-get update && apt-get install -y \
@@ -37,14 +37,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Add Python's site-packages bin directory to PATH for executables like uvicorn
+# Add Python\'s site-packages bin directory to PATH for executables like uvicorn
 ENV PATH="/usr/local/bin:$PATH"
 
 # Copy installed Python packages from the builder stage
 COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 
 # Copy the models weights
-COPY models/weights/ /app/opitya_insight/models/weights/
+COPY models/weights/ /opitya_insight/models/weights/
 
 # Copy the application code
 COPY . .
@@ -53,4 +53,4 @@ COPY . .
 EXPOSE 8080
 
 # Run the application
-CMD python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1
+CMD python -m uvicorn opitya_insight.api.main:app --host 0.0.0.0 --port $PORT --workers 1
